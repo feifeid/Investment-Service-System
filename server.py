@@ -115,13 +115,32 @@ def index():
   # example of a database query
   #
   
-  selectedEntity="Organization"  
-  queryString="SELECT O.name,O.homepage_url,L.city FROM Organization O, Location L WHERE O.location_id=L.id"
-  selectedEntity = request.form.get('comp_select')
-  print("start  "+str(selectedEntity)+"  end") # just to see what select is
+  entityList=["Company","People","Investment","Acquisition","Group"]  
+  filterATitle="Status"
+  filterAList=["All","operating","ipo","acquired","unknown"]   
+  filterBTitle="Location"
+  filterBList=["All","Europe","Asia","North America"]  
+  
+  
+  selectedEntity="Company"
+  selectedFilterA="All"  
+  selectedFilterB="All"
+  queryString="SELECT O.name,C.status, O.homepage_url,L.city FROM Organization O, Location L,Company C WHERE O.location_id=L.id AND O.crunchbase_uuid=C.crunchbase_uuid"
+  selectedEntity = request.form.get('entity_select')
+  selectedFilterA = request.form.get('filterA_select')
+  selectedFilterB = request.form.get('filterB_select')
+  #print("start  "+str(selectedEntity,selectedFilterA,selectedFilterB)+"  end") # just to see what select is
 
-  if selectedEntity=="Organization":  
-      queryString="SELECT O.name,O.homepage_url,L.city FROM Organization O, Location L WHERE O.location_id=L.id"
+  if selectedEntity=="Company":  
+      queryString="SELECT O.name, C.status, O.homepage_url,L.city FROM Organization O, Location L,Company C WHERE O.location_id=L.id AND O.crunchbase_uuid=C.crunchbase_uuid"
+      if selectedFilterA!="All":
+          queryString +=" And C.status="+"'"+selectedFilterA+"'"
+      if selectedFilterB=="Europe":
+          queryString +=" And (L.country_code='AUT' OR L.country_code='CHE' OR L.country_code='DEU' OR L.country_code='FRA' OR L.country_code='GBA' OR L.country_code='RUS')" 
+      elif selectedFilterB=="Asia":
+          queryString +=" And (L.country_code='CHN' OR L.country_code='HKG' OR L.country_code='KOR')"
+      elif selectedFilterB=="North America":
+          queryString +=" And L.country_code='USA'"
   elif selectedEntity=="People":  
       queryString="SELECT P.first_name,P.last_name, P.title, O.name, L.city FROM People P,Organization O, Location L WHERE P.location_id=L.id AND P.organization_id=O.crunchbase_uuid"
   
@@ -136,6 +155,7 @@ def index():
      temp=[]
      for value in result:
          temp.append(value.encode('ascii','ignore'))
+         #temp.append(str(value))
      tableInfo.append(temp)
      #a.encode('ascii','ignore')
     #names.append(result['name'])  # can also be accessed using result[0]
@@ -169,8 +189,8 @@ def index():
   #     {% endfor %}
   #
   
-  entityList=["Organization","People"]  
-  context = dict(data = names,tableData=tableInfo,entityList=entityList)
+   
+  context = dict(data = names,tableData=tableInfo,entityList=entityList,filterAList=filterAList,filterBList=filterBList,filterATitle=filterATitle,filterBTitle=filterBTitle)
 
 
   #

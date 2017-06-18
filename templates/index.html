@@ -22,11 +22,24 @@
   <div class="form-group">
     <div class="input-group">
         <span class="input-group-addon">Please select</span>
-            <select name="comp_select" class="selectpicker form-control">
+            <select name="entity_select" class="selectpicker form-control">
               {% for o in entityList %}
               <option value="{{ o }}">{{ o }}</option>
               {% endfor %}
             </select>
+
+            <select name="filterA_select" class="selectpicker form-control">
+              {% for o in filterAList %}
+              <option value="{{ o }}">{{ o }}</option>
+              {% endfor %}
+            </select>
+
+            <select name="filterB_select" class="selectpicker form-control">
+              {% for o in filterBList %}
+              <option value="{{ o }}">{{ o }}</option>
+              {% endfor %}
+            </select>
+
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
   </div>
@@ -37,7 +50,7 @@
         <tr>
         {% for i in t %}
             <td>
-                    {% if i.startswith("http:") %}
+                    {% if i.startswith("http:") or i.startswith("https:") %}
                         <a href="{{i}}">{{i}}</a>
                     {% else %}
                         {{i}}
