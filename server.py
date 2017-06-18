@@ -95,7 +95,7 @@ def teardown_request(exception):
 # see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
-@app.route('/')
+@app.route('/',methods=['GET', 'POST'])
 def index():
   """
   request is a special object that Flask provides to access web request information:
@@ -114,15 +114,30 @@ def index():
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT name,homepage_url FROM Organization")
+  
+  selectedEntity="Organization"  
+  queryString="SELECT O.name,O.homepage_url,L.city FROM Organization O, Location L WHERE O.location_id=L.id"
+  selectedEntity = request.form.get('comp_select')
+  print("start  "+str(selectedEntity)+"  end") # just to see what select is
+
+  if selectedEntity=="Organization":  
+      queryString="SELECT O.name,O.homepage_url,L.city FROM Organization O, Location L WHERE O.location_id=L.id"
+  elif selectedEntity=="People":  
+      queryString="SELECT P.first_name,P.last_name, P.title, O.name, L.city FROM People P,Organization O, Location L WHERE P.location_id=L.id AND P.organization_id=O.crunchbase_uuid"
+  
+  cursor = g.conn.execute(queryString)
+  #cursor = g.conn.execute("SELECT name,homepage_url,crunchbase_uuid FROM Organization")
   #cursor = g.conn.execute("SELECT name FROM test")
  # cursor = g.conn.execute("SELECT name FROM Organization")
   names = []
   tableInfo=[]
   for result in cursor:
      names.append(result)
-     tableInfo.append([result[0],result[1]])
-     
+     temp=[]
+     for value in result:
+         temp.append(value.encode('ascii','ignore'))
+     tableInfo.append(temp)
+     #a.encode('ascii','ignore')
     #names.append(result['name'])  # can also be accessed using result[0]
      print(result)
   cursor.close()
@@ -153,13 +168,17 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(data = names,tableData=tableInfo)
+  
+  entityList=["Organization","People"]  
+  context = dict(data = names,tableData=tableInfo,entityList=entityList)
 
 
   #
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
+
+  
   return render_template("index.html", **context)
 
 #
