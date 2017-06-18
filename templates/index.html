@@ -17,6 +17,17 @@
     {% endfor %}
   </div>
 
+    <table>
+    {% for t in tableData %}
+        <tr>
+        {% for i in t %}
+            <td>{{ i }}</td>
+        {% endfor %}
+        </tr>
+    {% endfor %}
+     </table>
+
+
 <p><a href="another">Go to the other page</a></p>
 
 <form method="POST" action="/add">
