@@ -118,8 +118,10 @@ def index():
 
   
   
-  selectedEntity="Company"
-  entityList=["Company","People","Investment","Acquisition","Group"]  
+  #selectedEntity="Company"
+  entityList=["Company","People","Investment","Acquisition","Group"] 
+  selectedEntity = request.form.get('entity_select')
+
   filterATitle="Status"
   filterAList=["All","operating","ipo","acquired","unknown"]   
   filterBTitle="Location"
@@ -128,19 +130,27 @@ def index():
   sortBList=["ASC","DESC"]
   selectedFilterA="All"  
   selectedFilterB="All" 
-  #selectedSortA="Default"
-  #selectedSortB="ASC"
-  queryString="SELECT O.name, C.status, O.homepage_url,L.city, C.founded_at,C.first_funding_at, C.last_funding_at,Count(DISTINCT R_O.investor_org_id) As Num_Investors FROM Organization O, Location L,Company C LEFT OUTER JOIN Round_Org R_O ON R_O.company_id=C.crunchbase_uuid WHERE O.location_id=L.id AND O.crunchbase_uuid=C.crunchbase_uuid  Group By C.crunchbase_uuid, O.name, C.status, O.homepage_url,L.city, C.founded_at,C.first_funding_at, C.last_funding_at"
-  selectedEntity = request.form.get('entity_select')
-  selectedFilterA = request.form.get('filterA_select')
-  selectedFilterB = request.form.get('filterB_select')
-  selectedSortA = request.form.get('sortA_select')
+  selectedSortA="Default"
+  order=["ASC","DESC"]
+  selectedSortB= order[0]
   selectedSortB = request.form.get('sortB_select')
+  if selectedSortB is None:
+      selectedSortB= order[0]
+  queryString="SELECT O.name, C.status, O.homepage_url,L.city, C.founded_at,C.first_funding_at, C.last_funding_at,Count(DISTINCT R_O.investor_org_id) As Num_Investors FROM Organization O, Location L,Company C LEFT OUTER JOIN Round_Org R_O ON R_O.company_id=C.crunchbase_uuid WHERE O.location_id=L.id AND O.crunchbase_uuid=C.crunchbase_uuid  Group By C.crunchbase_uuid, O.name, C.status, O.homepage_url,L.city, C.founded_at,C.first_funding_at, C.last_funding_at"
+
   #print("start  "+str(selectedEntity,selectedFilterA,selectedFilterB)+"  end") # just to see what select is
 
   if selectedEntity=="Company":  
       queryString="SELECT O.name, C.status, O.homepage_url,L.city, C.founded_at,C.first_funding_at, C.last_funding_at,Count(DISTINCT R_O.investor_org_id) As Num_Investors FROM Organization O, Location L,Company C LEFT OUTER JOIN Round_Org R_O ON R_O.company_id=C.crunchbase_uuid WHERE O.location_id=L.id AND O.crunchbase_uuid=C.crunchbase_uuid"
-      if selectedFilterA!="All":
+      filterATitle="Status"
+      filterAList=["All","operating","ipo","acquired","unknown"]   
+      filterBTitle="Location"
+      filterBList=["All","Europe","Asia","North America"]  
+      sortAList=["Default","Number of Organization Investors", "Founded Date", "First Funding Date", "Last Funding Date"]      
+      selectedFilterA = request.form.get('filterA_select')
+      selectedFilterB = request.form.get('filterB_select')
+      selectedSortA = request.form.get('sortA_select')      
+      if selectedFilterA=="operating" or selectedFilterA=="ipo" or selectedFilterA=="acquired" or selectedFilterA=="unknown":
           queryString +=" And C.status="+"'"+selectedFilterA+"'"
       if selectedFilterB=="Europe":
           queryString +=" And (L.country_code='AUT' OR L.country_code='CHE' OR L.country_code='DEU' OR L.country_code='FRA' OR L.country_code='GBA' OR L.country_code='RUS')" 
@@ -159,8 +169,23 @@ def index():
           queryString +=" ORDER BY "+"C.last_funding_at"+" "+selectedSortB
       
   elif selectedEntity=="People":  
-      queryString="SELECT P.first_name,P.last_name, P.title, O.name, L.city FROM People P,Organization O, Location L WHERE P.location_id=L.id AND P.organization_id=O.crunchbase_uuid"
+      queryString="SELECT P.first_name,P.last_name,P.linkedin_url,L.city, O.name, P.title FROM People P,Organization O, Location L WHERE P.location_id=L.id AND P.organization_id=O.crunchbase_uuid"
+      filterATitle="Location"
+      filterAList=["All","Europe","Asia","North America"]  
+      sortAList=["Default","first_name", "last_name"]
+      selectedFilterA = request.form.get('filterA_select')
+      selectedSortA = request.form.get('sortA_select')
+
+      if selectedFilterA=="Europe":
+          queryString +=" And (L.country_code='AUT' OR L.country_code='CHE' OR L.country_code='DEU' OR L.country_code='FRA' OR L.country_code='GBA' OR L.country_code='RUS')" 
+      elif selectedFilterA=="Asia":
+          queryString +=" And (L.country_code='CHN' OR L.country_code='HKG' OR L.country_code='KOR')"
+      elif selectedFilterA=="North America":
+          queryString +=" And L.country_code='USA'"
+      if selectedSortA=="first_name" or selectedSortA=="last_name":
+          queryString +=" ORDER BY "+selectedSortA+" "+selectedSortB
   
+  state = {'entityChoice': selectedEntity,'filterAChoice': selectedFilterA, 'filterBChoice': selectedFilterB, 'sortAChoice': selectedSortA,'sortBChoice': selectedSortB}
   cursor = g.conn.execute(queryString)
   #cursor = g.conn.execute("SELECT name,homepage_url,crunchbase_uuid FROM Organization")
   #cursor = g.conn.execute("SELECT name FROM test")
@@ -210,7 +235,7 @@ def index():
   #
   
    
-  context = dict(data = names,tableData=tableInfo,entityList=entityList,filterAList=filterAList,filterBList=filterBList,filterATitle=filterATitle,filterBTitle=filterBTitle, sortAList=sortAList,sortBList=sortBList)
+  context = dict(data = names,tableData=tableInfo,entityList=entityList,filterAList=filterAList,filterBList=filterBList,filterATitle=filterATitle,filterBTitle=filterBTitle, sortAList=sortAList,sortBList=sortBList, state=state, order=order)
 
 
   #

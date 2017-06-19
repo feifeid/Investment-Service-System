@@ -18,50 +18,51 @@
     {% endfor %}
   </div>-->
 
-<form class="form-inline" method="POST" >
+<form name="form1" class="form-inline" method="POST" >
   <div class="form-group">
     <div class="input-group">
         <p>
         <span class="input-group-addon">Select Table    </span>
-            <select name="entity_select" class="selectpicker form-control">
+            <select name="entity_select" class="selectpicker form-control" onChange="form1.submit()">
               {% for o in entityList %}
-              <option value="{{ o }}">{{ o }}</option>
+              <option value="{{ o }}" {% if o == state.entityChoice %} selected{% endif %}>{{ o }}</option>
               {% endfor %}
             </select>
         </p>
         <p>
         <span class="input-group-addon">Add Filter       </span>
             <small>{{filterATitle}} </small>
-            <select name="filterA_select" class="selectpicker form-control">
+            <select name="filterA_select" class="selectpicker form-control"  onChange="form1.submit()">
               {% for o in filterAList %}
-              <option value="{{ o }}">{{ o }}</option>
+              <option value="{{ o }}"   {% if o == state.filterAChoice %} selected{% endif %}>{{ o }}</option>
               {% endfor %}
             </select>
-
+        {% if state.entityChoice != "People" and state.entityChoice != "Acquisition"  %} 
             <small>{{filterBTitle}} </small>
-            <select name="filterB_select" class="selectpicker form-control">
+            <select name="filterB_select" class="selectpicker form-control"  onChange="form1.submit()">
               {% for o in filterBList %}
-              <option value="{{ o }}">{{ o }}</option>
+              <option value="{{ o }}"  {% if o == state.filterBChoice %} selected{% endif %}>{{ o }}</option>
               {% endfor %}
             </select>
+        {% endif %}
         </p>
         <p>
         <span class="input-group-addon">Sort By       </span>
             <small>Attrbute </small>
-            <select name="sortA_select" class="selectpicker form-control">
+            <select name="sortA_select" class="selectpicker form-control"  onChange="form1.submit()">
               {% for o in sortAList %}
-              <option value="{{ o }}">{{ o }}</option>
+              <option value="{{ o }}" {% if o == state.sortAChoice %} selected{% endif %}>{{ o }}</option>
               {% endfor %}
             </select>
 
             <small> Sorting Order</small>
-            <input type="radio" name="sortB_select" value="ASC" checked> <small>  ASC </small>
-            <input type="radio" name="sortB_select" value="DESC"> <small>  DESC </small>
+            <input type="radio" name="sortB_select" value={{order[0]}}  onChange="form1.submit()" {% if order[0] == state.sortBChoice %} checked{% endif %}> <small>  ASC </small>
+            <input type="radio" name="sortB_select" value={{order[1]}}   onChange="form1.submit()" {% if order[1]  == state.sortBChoice %} checked{% endif %}> <small>  DESC </small>
 
         </p>
 
     </div>
-    <button type="submit" class="btn btn-default">Submit</button>
+    <!--<button type="submit" class="btn btn-default">Submit</button>-->
   </div>
 </form>
 
