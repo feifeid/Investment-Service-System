@@ -21,24 +21,44 @@
 <form class="form-inline" method="POST" >
   <div class="form-group">
     <div class="input-group">
-        <span class="input-group-addon">Please select</span>
+        <p>
+        <span class="input-group-addon">Select Table    </span>
             <select name="entity_select" class="selectpicker form-control">
               {% for o in entityList %}
               <option value="{{ o }}">{{ o }}</option>
               {% endfor %}
             </select>
-
+        </p>
+        <p>
+        <span class="input-group-addon">Add Filter       </span>
+            <small>{{filterATitle}} </small>
             <select name="filterA_select" class="selectpicker form-control">
               {% for o in filterAList %}
               <option value="{{ o }}">{{ o }}</option>
               {% endfor %}
             </select>
 
+            <small>{{filterBTitle}} </small>
             <select name="filterB_select" class="selectpicker form-control">
               {% for o in filterBList %}
               <option value="{{ o }}">{{ o }}</option>
               {% endfor %}
             </select>
+        </p>
+        <p>
+        <span class="input-group-addon">Sort By       </span>
+            <small>Attrbute </small>
+            <select name="sortA_select" class="selectpicker form-control">
+              {% for o in sortAList %}
+              <option value="{{ o }}">{{ o }}</option>
+              {% endfor %}
+            </select>
+
+            <small> Sorting Order</small>
+            <input type="radio" name="sortB_select" value="ASC" checked> <small>  ASC </small>
+            <input type="radio" name="sortB_select" value="DESC"> <small>  DESC </small>
+
+        </p>
 
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
@@ -61,11 +81,12 @@
     {% endfor %}
      </table>
 
-
+<!--
 <p><a href="http://www.google.com">Go to the other page</a></p>
 
 <form method="POST" action="/add">
 <p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
+-->
 </form>
 
 </body>

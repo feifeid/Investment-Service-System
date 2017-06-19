@@ -115,24 +115,31 @@ def index():
   # example of a database query
   #
   
+
+  
+  
+  selectedEntity="Company"
   entityList=["Company","People","Investment","Acquisition","Group"]  
   filterATitle="Status"
   filterAList=["All","operating","ipo","acquired","unknown"]   
   filterBTitle="Location"
   filterBList=["All","Europe","Asia","North America"]  
-  
-  
-  selectedEntity="Company"
+  sortAList=["Default","Number of Organization Investors", "Founded Date", "First Funding Date", "Last Funding Date"]
+  sortBList=["ASC","DESC"]
   selectedFilterA="All"  
-  selectedFilterB="All"
-  queryString="SELECT O.name,C.status, O.homepage_url,L.city FROM Organization O, Location L,Company C WHERE O.location_id=L.id AND O.crunchbase_uuid=C.crunchbase_uuid"
+  selectedFilterB="All" 
+  #selectedSortA="Default"
+  #selectedSortB="ASC"
+  queryString="SELECT O.name, C.status, O.homepage_url,L.city, C.founded_at,C.first_funding_at, C.last_funding_at,Count(DISTINCT R_O.investor_org_id) As Num_Investors FROM Organization O, Location L,Company C LEFT OUTER JOIN Round_Org R_O ON R_O.company_id=C.crunchbase_uuid WHERE O.location_id=L.id AND O.crunchbase_uuid=C.crunchbase_uuid  Group By C.crunchbase_uuid, O.name, C.status, O.homepage_url,L.city, C.founded_at,C.first_funding_at, C.last_funding_at"
   selectedEntity = request.form.get('entity_select')
   selectedFilterA = request.form.get('filterA_select')
   selectedFilterB = request.form.get('filterB_select')
+  selectedSortA = request.form.get('sortA_select')
+  selectedSortB = request.form.get('sortB_select')
   #print("start  "+str(selectedEntity,selectedFilterA,selectedFilterB)+"  end") # just to see what select is
 
   if selectedEntity=="Company":  
-      queryString="SELECT O.name, C.status, O.homepage_url,L.city FROM Organization O, Location L,Company C WHERE O.location_id=L.id AND O.crunchbase_uuid=C.crunchbase_uuid"
+      queryString="SELECT O.name, C.status, O.homepage_url,L.city, C.founded_at,C.first_funding_at, C.last_funding_at,Count(DISTINCT R_O.investor_org_id) As Num_Investors FROM Organization O, Location L,Company C LEFT OUTER JOIN Round_Org R_O ON R_O.company_id=C.crunchbase_uuid WHERE O.location_id=L.id AND O.crunchbase_uuid=C.crunchbase_uuid"
       if selectedFilterA!="All":
           queryString +=" And C.status="+"'"+selectedFilterA+"'"
       if selectedFilterB=="Europe":
@@ -141,6 +148,16 @@ def index():
           queryString +=" And (L.country_code='CHN' OR L.country_code='HKG' OR L.country_code='KOR')"
       elif selectedFilterB=="North America":
           queryString +=" And L.country_code='USA'"
+      queryString +="  Group By C.crunchbase_uuid, O.name, C.status, O.homepage_url,L.city, C.founded_at,C.first_funding_at, C.last_funding_at"
+      if selectedSortA=="Number of Organization Investors":
+          queryString +=" ORDER BY "+"Num_Investors"+" "+selectedSortB
+      elif selectedSortA=="Founded Date":
+          queryString +=" ORDER BY "+"C.founded_at"+" "+selectedSortB
+      elif selectedSortA=="First Funding Date":
+          queryString +=" ORDER BY "+"C.first_funding_at"+" "+selectedSortB
+      elif selectedSortA=="Last Funding Date":
+          queryString +=" ORDER BY "+"C.last_funding_at"+" "+selectedSortB
+      
   elif selectedEntity=="People":  
       queryString="SELECT P.first_name,P.last_name, P.title, O.name, L.city FROM People P,Organization O, Location L WHERE P.location_id=L.id AND P.organization_id=O.crunchbase_uuid"
   
@@ -154,7 +171,10 @@ def index():
      names.append(result)
      temp=[]
      for value in result:
-         temp.append(value.encode('ascii','ignore'))
+         if isinstance(value, unicode):
+             temp.append(value.encode('ascii','ignore'))
+         else:
+             temp.append(str(value))
          #temp.append(str(value))
      tableInfo.append(temp)
      #a.encode('ascii','ignore')
@@ -190,7 +210,7 @@ def index():
   #
   
    
-  context = dict(data = names,tableData=tableInfo,entityList=entityList,filterAList=filterAList,filterBList=filterBList,filterATitle=filterATitle,filterBTitle=filterBTitle)
+  context = dict(data = names,tableData=tableInfo,entityList=entityList,filterAList=filterAList,filterBList=filterBList,filterATitle=filterATitle,filterBTitle=filterBTitle, sortAList=sortAList,sortBList=sortBList)
 
 
   #
