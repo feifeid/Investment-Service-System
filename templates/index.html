@@ -4,11 +4,69 @@
       font-size: 15pt;
       font-family: arial;
     }
+    
+    a:link {
+    color: #00ccff;
+    background-color: transparent;
+    text-decoration: none;
+    }
+    
+    a:visited {
+    color: #ff4d4d;
+    background-color: transparent;
+    text-decoration: none;
+    }
+    
+    a:hover {
+    color: #00ccff;
+    background-color: #dddddd;
+    text-decoration: underline;
+    }
+    
+    a:active {
+    color: #33cc33;
+    background-color: transparent;
+    text-decoration: none;
+    }
+
+    table, th, td {
+    border: 1px solid #d9d9d9;
+    border-collapse: collapse;
+    }
+        
+    tr:nth-child(even) {
+    background-color: #f2f2f2;
+    }
+    
+    th, td {
+    padding: 5px;
+    }
+    
+    th {
+    background-color: black;
+    color: white;
+    }
+    
+    aside {  
+    float: left;
+    padding: 10px;
+    border-right: 1px solid gray;
+    width:290px;
+    height:850px;
+    background: #e6e6e6;  
+    }  
+              
+    section {
+    margin-left: 100px;
+    padding: 1em;
+    overflow: hidden;
+    }  
+    
   </style>
 
 
 <body>
-  <h1>Investment Service</h1>
+  <h1 style="font-family:arial; color:white; background-color: #0288dd; text-align:center;padding: 20px;">Investment Service</h1>
   <!--
    <div>{{data}}</div>
 
@@ -17,56 +75,69 @@
     <div>{{n}}</div>
     {% endfor %}
   </div>-->
-
-<form name="form1" class="form-inline" method="POST" >
-  <div class="form-group">
-    <div class="input-group">
-        <p>
-        <span class="input-group-addon">Select Table    </span>
-            <select name="entity_select" class="selectpicker form-control" onChange="form1.submit()">
-              {% for o in entityList %}
-              <option value="{{ o }}" {% if o == state.entityChoice %} selected{% endif %}>{{ o }}</option>
-              {% endfor %}
-            </select>
-        </p>
-        <p>
-        <span class="input-group-addon">Add Filter       </span>
-            <small>{{filterATitle}} </small>
-            <select name="filterA_select" class="selectpicker form-control"  onChange="form1.submit()">
-              {% for o in filterAList %}
-              <option value="{{ o }}"   {% if o == state.filterAChoice %} selected{% endif %}>{{ o }}</option>
-              {% endfor %}
-            </select>
-        {% if state.entityChoice != "People" and state.entityChoice != "Acquisition"  %} 
-            <small>{{filterBTitle}} </small>
-            <select name="filterB_select" class="selectpicker form-control"  onChange="form1.submit()">
-              {% for o in filterBList %}
-              <option value="{{ o }}"  {% if o == state.filterBChoice %} selected{% endif %}>{{ o }}</option>
-              {% endfor %}
-            </select>
-        {% endif %}
-        </p>
-        <p>
-        <span class="input-group-addon">Sort By       </span>
-            <small>Attrbute </small>
-            <select name="sortA_select" class="selectpicker form-control"  onChange="form1.submit()">
-              {% for o in sortAList %}
-              <option value="{{ o }}" {% if o == state.sortAChoice %} selected{% endif %}>{{ o }}</option>
-              {% endfor %}
-            </select>
-
-            <small> Sorting Order</small>
-            <input type="radio" name="sortB_select" value={{order[0]}}  onChange="form1.submit()" {% if order[0] == state.sortBChoice %} checked{% endif %}> <small>  ASC </small>
-            <input type="radio" name="sortB_select" value={{order[1]}}   onChange="form1.submit()" {% if order[1]  == state.sortBChoice %} checked{% endif %}> <small>  DESC </small>
-
-        </p>
-
-    </div>
-    <!--<button type="submit" class="btn btn-default">Submit</button>-->
-  </div>
-</form>
-
+<hr>
+<div class="content">
+    <aside>  
+        <form name="form1" class="form-inline" method="POST" > 
+          <div class="form-group">
+            <div class="input-group">
+                <p>
+                <span class="input-group-addon">Select Table    </span>
+                    <select name="entity_select" class="selectpicker form-control" onChange="form1.submit()">
+                      {% for o in entityList %}
+                      <option value="{{ o }}" {% if o == state.entityChoice %} selected{% endif %}>{{ o }}</option>
+                      {% endfor %}
+                    </select>
+                </p>
+                <br>
+                <p>
+                <span class="input-group-addon">Add Filter       </span>
+                    <br>   
+                    <small>{{filterATitle}} </small>
+                    <select name="filterA_select" class="selectpicker form-control"  onChange="form1.submit()">
+                      {% for o in filterAList %}
+                      <option value="{{ o }}"   {% if o == state.filterAChoice %} selected{% endif %}>{{ o }}</option>
+                      {% endfor %}
+                    </select>
+                    <br>   
+                {% if state.entityChoice != "People" and state.entityChoice != "Acquisition"  %} 
+                    <small>{{filterBTitle}} </small>
+                    <select name="filterB_select" class="selectpicker form-control"  onChange="form1.submit()">
+                      {% for o in filterBList %}
+                      <option value="{{ o }}"  {% if o == state.filterBChoice %} selected{% endif %}>{{ o }}</option>
+                      {% endfor %}
+                    </select>
+                {% endif %}
+                </p>
+                <br>
+                <p>
+                <span class="input-group-addon">Sort By       </span>
+                    <br>   
+                    <small>Attrbute </small>
+                    <select name="sortA_select" class="selectpicker form-control"  onChange="form1.submit()">
+                      {% for o in sortAList %}
+                      <option value="{{ o }}" {% if o == state.sortAChoice %} selected{% endif %}>{{ o }}</option>
+                      {% endfor %}
+                    </select>
+                <br>
+                    <small> Sorting Order</small>  
+                    <input type="radio" name="sortB_select" value={{order[0]}}  onChange="form1.submit()" {% if order[0] == state.sortBChoice %} checked{% endif %}> <small>  ASC </small>
+                    <input type="radio" name="sortB_select" value={{order[1]}}   onChange="form1.submit()" {% if order[1]  == state.sortBChoice %} checked{% endif %}> <small>  DESC </small>
+        
+                </p>
+        
+            </div>
+            <!--<button type="submit" class="btn btn-default">Submit</button>-->
+          </div>
+        </form>
+    </aside>
+   <section> 
     <table>
+        <tr>
+            {% for column in columnList %}
+                <th>{{column}}</th>
+            {% endfor %}
+        </tr>
     {% for t in tableData %}
         <tr>
         {% for i in t %}
@@ -81,7 +152,8 @@
         </tr>
     {% endfor %}
      </table>
-
+    </section>
+</div>
 <!--
 <p><a href="http://www.google.com">Go to the other page</a></p>
 

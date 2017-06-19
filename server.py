@@ -120,6 +120,7 @@ def index():
   
   #selectedEntity="Company"
   entityList=["Company","People","Investment","Acquisition","Group"] 
+  columnList=["Name","Status","Homepage Url", "City","Founded Data", "First Funding Date", "Last Funding Date", "Number of Organization Investors"]
   selectedEntity = request.form.get('entity_select')
 
   filterATitle="Status"
@@ -141,7 +142,8 @@ def index():
   #print("start  "+str(selectedEntity,selectedFilterA,selectedFilterB)+"  end") # just to see what select is
 
   if selectedEntity=="Company":  
-      queryString="SELECT O.name, C.status, O.homepage_url,L.city, C.founded_at,C.first_funding_at, C.last_funding_at,Count(DISTINCT R_O.investor_org_id) As Num_Investors FROM Organization O, Location L,Company C LEFT OUTER JOIN Round_Org R_O ON R_O.company_id=C.crunchbase_uuid WHERE O.location_id=L.id AND O.crunchbase_uuid=C.crunchbase_uuid"
+      queryString="SELECT O.name, C.status, O.homepage_url,L.city, C.founded_at,C.first_funding_at, C.last_funding_at,Count(DISTINCT R_O.investor_org_id) As Num_Investors FROM Organization O, Location L,Company C LEFT OUTER JOIN Round_Org R_O ON R_O.company_id=C.crunchbase_uuid WHERE O.location_id=L.id AND O.crunchbase_uuid=C.crunchbase_uuid"      
+      columnList=["Name","Status","Homepage Url", "City","Founded Data", "First Funding Date", "Last Funding Date", "Number of Organization Investors"]
       filterATitle="Status"
       filterAList=["All","operating","ipo","acquired","unknown"]   
       filterBTitle="Location"
@@ -153,7 +155,7 @@ def index():
       if selectedFilterA=="operating" or selectedFilterA=="ipo" or selectedFilterA=="acquired" or selectedFilterA=="unknown":
           queryString +=" And C.status="+"'"+selectedFilterA+"'"
       if selectedFilterB=="Europe":
-          queryString +=" And (L.country_code='AUT' OR L.country_code='CHE' OR L.country_code='DEU' OR L.country_code='FRA' OR L.country_code='GBA' OR L.country_code='RUS')" 
+          queryString +=" And (L.country_code='AUT' OR L.country_code='CHE' OR L.country_code='DEU' OR L.country_code='FRA' OR L.country_code='GBR' OR L.country_code='RUS')" 
       elif selectedFilterB=="Asia":
           queryString +=" And (L.country_code='CHN' OR L.country_code='HKG' OR L.country_code='KOR')"
       elif selectedFilterB=="North America":
@@ -170,6 +172,7 @@ def index():
       
   elif selectedEntity=="People":  
       queryString="SELECT P.first_name,P.last_name,P.linkedin_url,L.city, O.name, P.title FROM People P,Organization O, Location L WHERE P.location_id=L.id AND P.organization_id=O.crunchbase_uuid"
+      columnList=["First Name","Last Name","Linkedin Url", "City","Organization","Title"]   
       filterATitle="Location"
       filterAList=["All","Europe","Asia","North America"]  
       sortAList=["Default","first_name", "last_name"]
@@ -177,13 +180,83 @@ def index():
       selectedSortA = request.form.get('sortA_select')
 
       if selectedFilterA=="Europe":
-          queryString +=" And (L.country_code='AUT' OR L.country_code='CHE' OR L.country_code='DEU' OR L.country_code='FRA' OR L.country_code='GBA' OR L.country_code='RUS')" 
+          queryString +=" And (L.country_code='AUT' OR L.country_code='CHE' OR L.country_code='DEU' OR L.country_code='FRA' OR L.country_code='GBR' OR L.country_code='RUS')" 
       elif selectedFilterA=="Asia":
           queryString +=" And (L.country_code='CHN' OR L.country_code='HKG' OR L.country_code='KOR')"
       elif selectedFilterA=="North America":
           queryString +=" And L.country_code='USA'"
       if selectedSortA=="first_name" or selectedSortA=="last_name":
           queryString +=" ORDER BY "+selectedSortA+" "+selectedSortB
+          
+  elif selectedEntity=="Group":  
+      queryString="SELECT O.name, G.primary_role, O.homepage_url,L.city, O.short_description FROM Organization O, Location L,Group_Org G  WHERE O.location_id=L.id AND O.crunchbase_uuid=G.crunchbase_uuid"
+      columnList=["Name","Primary Role","Homepage Url","City","Short Description"]      
+      filterATitle="Primary Role"
+      filterAList=["All","other","venture","school"]
+      sortAList=["Default","name"]
+      filterBTitle="Location"
+      filterBList=["All","Europe","Asia","North America"]  
+      selectedFilterA = request.form.get('filterA_select')
+      selectedFilterB = request.form.get('filterB_select')
+      selectedSortA = request.form.get('sortA_select')
+      if selectedFilterA=="Other" or selectedFilterA=="Venture" or selectedFilterA=="School":
+          queryString += " And G.primary_role="+"'"+selectedFilterA+"'"
+      if selectedFilterB=="Europe":
+          queryString +=" And (L.country_code='AUT' OR L.country_code='CHE' OR L.country_code='DEU' OR L.country_code='FRA' OR L.country_code='GBR' OR L.country_code='RUS')" 
+      elif selectedFilterB=="Asia":
+          queryString +=" And (L.country_code='CHN' OR L.country_code='HKG' OR L.country_code='KOR')"
+      elif selectedFilterB=="North America":
+          queryString +=" And L.country_code='USA'"
+      if selectedSortA=="name":
+          queryString +=" ORDER BY "+selectedSortA+" "+selectedSortB
+     
+  elif selectedEntity=="Investment": 
+      #queryString="SELECT O3.name,O4.name, R_P.funding_round_type, R_P.funding_round_code,R_P.raised_amount_usd FROM Round_Peo R_P, Organization O3,Organization O4 WHERE O3.crunchbase_uuid = R_P.company_id AND O4.crunchbase_uuid = R_P.investor_peo_id"
+      #queryString="SELECT O1.name,O2.name, R_O.funding_round_type, R_O.funding_round_code,R_O.raised_amount_usd FROM Round_Org R_O, Organization O1,Organization O2 WHERE O1.crunchbase_uuid = R_O.company_id AND O2.crunchbase_uuid = R_O.investor_org_id "
+      queryStringA="SELECT O1.name,O2.name, R_O.funding_round_type, R_O.funding_round_code,R_O.raised_amount_usd FROM Round_Org R_O, Organization O1,Organization O2 WHERE O1.crunchbase_uuid = R_O.company_id AND O2.crunchbase_uuid = R_O.investor_org_id"
+      queryStringB="SELECT O3.name,P.last_name, R_P.funding_round_type, R_P.funding_round_code,R_P.raised_amount_usd FROM Round_Peo R_P, Organization O3,People P WHERE O3.crunchbase_uuid = R_P.company_id AND P.crunchbase_uuid = R_P.investor_peo_id"
+      queryString="SELECT O1.name,O2.name, R_O.funding_round_type, R_O.funding_round_code,R_O.raised_amount_usd FROM Round_Org R_O, Organization O1,Organization O2 WHERE O1.crunchbase_uuid = R_O.company_id AND O2.crunchbase_uuid = R_O.investor_org_id UNION SELECT O3.name,P.last_name, R_P.funding_round_type, R_P.funding_round_code,R_P.raised_amount_usd FROM Round_Peo R_P, Organization O3,People P WHERE O3.crunchbase_uuid = R_P.company_id AND P.crunchbase_uuid = R_P.investor_peo_id"
+      columnList=["Company Name","Investor Name","Funding Round Type","Founidng Round Code","Raised Amount USD"]  
+      filterATitle="Funding Round Code"
+      filterAList=["All","Invested By Individuals", "Invested By Organizations"]      
+      filterBTitle="Funding Round Type"
+      filterBList=["All","venture","undisclosed","seed","grant","post_ipo_equity"]
+      sortAList=["Default","raised_amount_usd","funding_round_code"]
+      selectedFilterA = request.form.get('filterA_select')
+      selectedFilterB = request.form.get('filterB_select')
+      selectedSortA = request.form.get('sortA_select')
+      if selectedFilterA=="All":
+          queryString=queryStringA+ " UNION "+queryStringB
+          if selectedFilterB=="venture" or selectedFilterB=="undisclosed" or selectedFilterB=="seed" or selectedFilterB=="grant" or selectedFilterB=="post_ipo_equity":
+              queryString=queryStringA+" And R_O.funding_round_type="+"'"+selectedFilterB+"'" + " UNION "+queryStringB+" And R_P.funding_round_type="+"'"+selectedFilterB+"'"
+          if selectedSortA== "raised_amount_usd" or selectedSortA=="funding_round_code":
+              queryString +=" ORDER BY "+selectedSortA+" "+selectedSortB
+      if selectedFilterA=="Invested By Organizations":
+          queryString=queryStringA
+          if selectedFilterB=="venture" or selectedFilterB=="undisclosed" or selectedFilterB=="seed" or selectedFilterB=="grant" or selectedFilterB=="post_ipo_equity":
+              queryString+=" And R_O.funding_round_type="+"'"+selectedFilterB+"'" 
+          if selectedSortA=="raised_amount_usd" or selectedSortA=="funding_round_code":
+              queryString +=" ORDER BY "+selectedSortA+" "+selectedSortB
+      if selectedFilterA=="Invested By Individuals":
+          queryString=queryStringB          
+          if selectedFilterB=="venture" or selectedFilterB=="undisclosed" or selectedFilterB=="seed" or selectedFilterB=="grant" or selectedFilterB=="post_ipo_equity":
+              queryString+=" And R_P.funding_round_type="+"'"+selectedFilterB+"'" 
+          if selectedSortA=="raised_amount_usd" or selectedSortA=="funding_round_code":
+              queryString +=" ORDER BY "+selectedSortA+" "+selectedSortB
+      
+  elif selectedEntity=="Acquisition":  
+     queryString="SELECT O1.name, O2.name, A.price_amount, A.price_currency_code FROM Acquire A, Organization O1, Organization O2 WHERE O1.crunchbase_uuid=company_id AND O2.crunchbase_uuid=acquirer_id"
+     columnList=["Company Name","Acquirer Name","Price Amount","Price Currency Code"]
+     filterATitle="Price Currency"
+     filterAList=["All","USD","GBP"]
+     sortAList=["Default","price_amount"]
+     selectedFilterA = request.form.get('filterA_select')
+     selectedSortA = request.form.get('sortA_select')
+     if selectedFilterA=="USD" or selectedFilterA=="GBP":
+         queryString += " And A.price_currency_code="+"'"+selectedFilterA+"'"
+     if selectedSortA=="price_amount":
+         queryString +=" ORDER BY "+selectedSortA+" "+selectedSortB
+
   
   state = {'entityChoice': selectedEntity,'filterAChoice': selectedFilterA, 'filterBChoice': selectedFilterB, 'sortAChoice': selectedSortA,'sortBChoice': selectedSortB}
   cursor = g.conn.execute(queryString)
@@ -235,7 +308,7 @@ def index():
   #
   
    
-  context = dict(data = names,tableData=tableInfo,entityList=entityList,filterAList=filterAList,filterBList=filterBList,filterATitle=filterATitle,filterBTitle=filterBTitle, sortAList=sortAList,sortBList=sortBList, state=state, order=order)
+  context = dict(data = names,tableData=tableInfo,entityList=entityList,filterAList=filterAList,filterBList=filterBList,filterATitle=filterATitle,filterBTitle=filterBTitle, sortAList=sortAList,sortBList=sortBList, state=state, order=order, columnList=columnList)
 
 
   #
