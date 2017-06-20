@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.7
-
+#update
 """
 Columbia's COMS W4111.001 Introduction to Databases
 Example Webserver
@@ -208,6 +208,7 @@ def index():
       selectedSortA = request.form.get('sortA_select')
       searchText = request.form.get('searchBox') 
       
+      #add filter and sort
       if selectedFilterA=="other" or selectedFilterA=="venture" or selectedFilterA=="school":
           queryString += " And G.primary_role="+"'"+selectedFilterA+"'"
       if selectedFilterB=="Europe":
